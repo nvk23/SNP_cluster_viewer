@@ -79,11 +79,31 @@ with maf_descriptions:
     st.markdown("MAF of 4 is greater than 0.05")
 maf_cat = st.sidebar.selectbox(label = 'Minor Allele Frequency Category Selection', label_visibility = 'collapsed', options=list(range(5)))
 
-metrics = pd.read_csv(f'data/model_052523_maf{maf_cat}')
+checkbox1, checkbox2 = st.columns(2)
+
+if maf_cat == 0:
+    prev_nc = checkbox1.checkbox('Show previously NC only')
+else:
+    prev_nc = False
+
+if not prev_nc:
+    metrics = pd.read_csv(f'data/model_052523_maf{maf_cat}')
+else:
+    metrics = pd.read_csv(f'data/model_052523_maf{maf_cat}_prevNC')
+    confid_level = checkbox2.checkbox('Choose by confidence level')
+
+    if confid_level:
+        confidence = st.select_slider('Display a confidence level of predictions that is less than:', options=['100', '90', '80', '70', '60'])
+        metrics = pd.read_csv(f'data/model_052523_maf{maf_cat}_prevNC_proba{confidence}')
+
 # st.dataframe(metrics)
 
 st.sidebar.markdown('### Choose an individual SNP to display')
 snp_name = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=metrics['snpID'].unique())
+full_MAF_plot = st.sidebar.checkbox('Display full MAF plot')
+seaborn_plot = st.sidebar.checkbox('Display Seaborn full MAF plot')
+full_plots = st.sidebar.checkbox('Display full plots')
+
 
 metric1,metric2 = st.columns([1,1])
 num_snps = len(metrics['snpID'].unique())
@@ -98,11 +118,49 @@ with metric2:
 snp1 = metrics.loc[metrics['snpID'] == snp_name]
 
 before, after = st.columns(2)
+
 fig_before = plot_clusters(snp1, x_col='Theta', y_col='R', gtype_col='GT', title = 'Before Recluster')['fig']
 before.plotly_chart(fig_before, use_container_width=True)
 
 fig_after = plot_clusters(snp1, x_col='Theta', y_col='R', gtype_col='preds_cat', title = 'After Recluster')['fig']
 after.plotly_chart(fig_after, use_container_width=True)
+
+
+title1, title2, title3 = st.columns(3)
+maf_full1, maf_full2 = st.columns(2)
+tl1, tl2, tl3 = st.columns(3)
+full1, full2 = st.columns(2)
+color_dict = dict({'NC':'red',
+                  'AA':'blue',
+                  'BB': 'green',
+                  'AB': 'orange'})
+if full_MAF_plot:
+    title2.markdown('### Full Plots per MAF Category')
+    full_metrics = pd.read_csv(f'data/model_052523_maf{maf_cat}_full')
+    fig_before = plot_clusters(full_metrics, x_col='Theta', y_col='R', gtype_col='GT', title = 'Before Recluster')['fig']
+    maf_full1.plotly_chart(fig_before, use_container_width=True)
+
+    fig_after = plot_clusters(full_metrics, x_col='Theta', y_col='R', gtype_col='preds_cat', title = 'After Recluster')['fig']
+    maf_full2.plotly_chart(fig_after, use_container_width=True)
+
+if seaborn_plot:
+    fig_maf = plt.figure(figsize=(10, 4))
+    sns.scatterplot(x=full_metrics["Theta"], y=full_metrics["R"], hue=full_metrics["GT"], palette = color_dict)
+    maf_full1.pyplot(fig_maf, use_container_width=True)
+
+    fig_maf2 = plt.figure(figsize=(10, 4))
+    sns.scatterplot(x=full_metrics["Theta"], y=full_metrics["R"], hue=full_metrics["preds_cat"], palette = color_dict)
+    maf_full2.pyplot(fig_maf2, use_container_width=True)
+
+if full_plots:
+    tl2.markdown('### NC-Only Plot vs. Full Plot')
+    nc_metrics = pd.read_csv(f'data/model_052523_nc')
+    fig_before = plot_clusters(nc_metrics, x_col='Theta', y_col='R', gtype_col='GT', title = 'Full NC')['fig']
+    full1.plotly_chart(fig_before, use_container_width=True)
+
+    full = pd.read_csv(f'data/model_052523_full')
+    fig_after = plot_clusters(full, x_col='Theta', y_col='R', gtype_col='GT', title = 'Full Total')['fig']
+    full2.plotly_chart(fig_after, use_container_width=True)
 
 
 #### From GenoTools App - SNP Metrics Page (Additional features if wanted)
