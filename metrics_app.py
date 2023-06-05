@@ -69,6 +69,10 @@ def snp_callback():
 
 st.title('Cluster Buster Evaluations')
 
+st.sidebar.markdown('### Choose a Model')
+models = ['model_051723','model_052523']
+model_name = st.sidebar.selectbox(label = 'Minor Allele Frequency Category Selection', label_visibility = 'collapsed', options=models)
+
 st.sidebar.markdown('### Choose a MAF Category')
 maf_descriptions = st.sidebar.expander("MAF Categories", expanded=False)
 with maf_descriptions:
@@ -87,14 +91,14 @@ else:
     prev_nc = False
 
 if not prev_nc:
-    metrics = pd.read_csv(f'data/model_052523_maf{maf_cat}')
+    metrics = pd.read_csv(f'data/{model_name}_maf{maf_cat}')
 else:
-    metrics = pd.read_csv(f'data/model_052523_maf{maf_cat}_prevNC')
+    metrics = pd.read_csv(f'data/{model_name}_maf{maf_cat}_prevNC')
     confid_level = checkbox2.checkbox('Choose by confidence level')
 
     if confid_level:
         confidence = st.select_slider('Display a confidence level of predictions that is less than:', options=['100', '90', '80', '70', '60'])
-        metrics = pd.read_csv(f'data/model_052523_maf{maf_cat}_prevNC_proba{confidence}')
+        metrics = pd.read_csv(f'data/{model_name}_maf{maf_cat}_prevNC_proba{confidence}')
 
 # st.dataframe(metrics)
 
@@ -136,7 +140,7 @@ color_dict = dict({'NC':'red',
                   'AB': 'orange'})
 if full_MAF_plot:
     title2.markdown('### Full Plots per MAF Category')
-    full_metrics = pd.read_csv(f'data/model_052523_maf{maf_cat}_full')
+    full_metrics = pd.read_csv(f'data/{model_name}_maf{maf_cat}_full')
     fig_before = plot_clusters(full_metrics, x_col='Theta', y_col='R', gtype_col='GT', title = 'Before Recluster')['fig']
     maf_full1.plotly_chart(fig_before, use_container_width=True)
 
@@ -154,14 +158,16 @@ if seaborn_plot:
 
 if full_plots:
     tl2.markdown('### NC-Only Plot vs. Full Plot')
-    nc_metrics = pd.read_csv(f'data/model_052523_nc')
-    fig_before = plot_clusters(nc_metrics, x_col='Theta', y_col='R', gtype_col='GT', title = 'Full NC')['fig']
-    full1.plotly_chart(fig_before, use_container_width=True)
+    nc_metrics = pd.read_csv(f'data/{model_name}_nc')
+    fig_nc = plot_clusters(nc_metrics, x_col='Theta', y_col='R', gtype_col='GT', title = 'Full NC')['fig']
+    full1.plotly_chart(fig_nc, use_container_width=True)
 
-    full = pd.read_csv(f'data/model_052523_full')
-    fig_after = plot_clusters(full, x_col='Theta', y_col='R', gtype_col='GT', title = 'Full Total')['fig']
-    full2.plotly_chart(fig_after, use_container_width=True)
+    full = pd.read_csv(f'data/{model_name}_full')
+    fig_full = plot_clusters(full, x_col='Theta', y_col='R', gtype_col='GT', title = 'Full Original')['fig']
+    full2.plotly_chart(fig_full, use_container_width=True)
 
+    fig_preds = plot_clusters(full, x_col='Theta', y_col='R', gtype_col='preds_cat', title = 'Full Prediction')['fig']
+    full2.plotly_chart(fig_preds, use_container_width=True)
 
 #### From GenoTools App - SNP Metrics Page (Additional features if wanted)
 
