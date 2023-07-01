@@ -41,7 +41,10 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     lmap = {'r':'R','theta':'Theta'}
     smap = {'Control':'circle','PD':'diamond-open-dot'}
 
-    fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap)
+    if 'R_tightness' in df.columns:
+        fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap, hover_data=['R_tightness', 'Theta_tightness'])
+    else:
+        fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap)
 
     fig.update_xaxes(range=xlim, nticks=10, zeroline=False)
     fig.update_yaxes(range=ylim, nticks=10, zeroline=False)
@@ -62,9 +65,9 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
     
     return out_dict
 
-def snp_callback():
-    st.session_state['old_snp_choice'] = st.session_state['snp_choice']
-    st.session_state['snp_choice'] = st.session_state['new_snp_choice']
+# def snp_callback():
+#     st.session_state['old_snp_choice'] = st.session_state['snp_choice']
+#     st.session_state['snp_choice'] = st.session_state['new_snp_choice']
 
 
 st.title('Cluster Buster Evaluations')
@@ -95,7 +98,10 @@ else:
 
     if confid_level:
         confidence = st.select_slider('Display a confidence level of predictions that is less than:', options=['100', '90', '80', '70', '60'])
-        metrics = pd.read_csv(f'data/{model_name}_maf{maf_cat}_prevNC_proba{confidence}')
+        if os.path.isfile(f'data/{model_name}_maf{maf_cat}_prevNC_proba{confidence}'):
+            metrics = pd.read_csv(f'data/{model_name}_maf{maf_cat}_prevNC_proba{confidence}')
+        else:
+            st.warning('Predictions do not exist at or below this confidence level')
 
 # st.dataframe(metrics)
 
