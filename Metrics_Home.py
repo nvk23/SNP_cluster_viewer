@@ -13,57 +13,14 @@ from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 from io import StringIO, BytesIO
 
+from hold_method import plot_clusters
+
 
 st.set_page_config(
     page_title="Cluster Buster Evaluation",
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'):
-    d3 = px.colors.qualitative.D3
-
-    cmap = {
-        'AA': d3[0],
-        'AB': d3[1],
-        'BA': d3[1],
-        'BB': d3[2],
-        'NC': d3[3]
-    }
-
-    # gtypes_list = (df[gtype_col].unique())
-    xmin, xmax = df[x_col].min(), df[x_col].max()
-    ymin, ymax = df[y_col].min(), df[y_col].max()
-
-    xlim = [xmin-.1, xmax+.1]
-    ylim = [ymin-.1, ymax+.1]
-
-    lmap = {'r':'R','theta':'Theta'}
-    smap = {'Control':'circle','PD':'diamond-open-dot'}
-
-    if 'R_tightness' in df.columns:
-        fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap, hover_data=['R_tightness', 'Theta_tightness'])
-    else:
-        fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map=cmap, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap)
-
-    fig.update_xaxes(range=xlim, nticks=10, zeroline=False)
-    fig.update_yaxes(range=ylim, nticks=10, zeroline=False)
-    
-    fig.update_layout(margin=dict(r=76, t=63, b=75))
-
-    # fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1, xanchor="right", x=1))
-
-    fig.update_layout(legend_title_text='Genotype')
-
-    out_dict = {
-        'fig': fig,
-        'xlim': xlim,
-        'ylim': ylim
-    }
-    
-    fig.update_layout(title_text=f'<b>{title}<b>')
-    
-    return out_dict
 
 # def snp_callback():
 #     st.session_state['old_snp_choice'] = st.session_state['snp_choice']

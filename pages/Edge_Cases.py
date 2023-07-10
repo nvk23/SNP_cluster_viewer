@@ -12,52 +12,84 @@ import seaborn as sns
 from PIL import Image
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 from io import StringIO, BytesIO
-from Metrics_Home import plot_clusters
 
-cluster_metrics = pd.read_csv(f'data/model_060623_full_cluster_tightness')
-tightness_measure = st.sidebar.selectbox(label = 'Cluster Tightnes Metric', options=['R', 'Theta'])
+from hold_method import plot_clusters
 
-percentile = st.sidebar.checkbox('Show percentiles', value = True)
-metric_level = st.sidebar.checkbox('Choose metric level')
-min_r = 0.174188
-max_r = 62.392498
-min_theta = 0.007535
-max_theta = 48.659265
+st.title('Previous No Calls Evaluation')
 
-if metric_level:
-    if tightness_measure == 'R':
-        metric_value = st.select_slider('Display R tightness under this value:', options=np.arange(min_r, max_r, 0.5).tolist())
-    elif tightness_measure == 'Theta':
-        metric_value = st.select_slider('Display Theta tightness under this value:', options=np.arange(min_theta, max_theta, 0.5).tolist())
+full_metrics = pd.read_csv('data/model_060623_full_cluster_tightness')
+tightness_measure = st.sidebar.selectbox(label = 'Show 25th Percentile', options=['None', 'R', 'Theta'])
 
-    col_name = f'{tightness_measure}_tightness'
-    title = f'{tightness_measure} Tightness Under {metric_value}'
-    cluster_custom = cluster_metrics.loc[cluster_metrics[col_name]<metric_value]
-    cluster_metric = plot_clusters(cluster_custom, x_col='Theta', y_col='R', gtype_col='preds_cat', title = title)['fig']
-    st.plotly_chart(cluster_metric, use_container_width=True)
+if tightness_measure == 'R':
+    r_less = full_metrics.loc[full_metrics['R_tightness']<1.042037]
+    prev_nc = r_less[r_less["GT"] == "NC"]
+    now_nc = r_less[r_less["preds_cat"] == "NC"]
+    # st.dataframe(now_nc)
 
-    title = f'{tightness_measure} Tightness Over {metric_value}'
-    cluster_custom = cluster_metrics.loc[cluster_metrics[col_name]>metric_value]
-    cluster_metric = plot_clusters(cluster_custom, x_col='Theta', y_col='R', gtype_col='preds_cat', title = title)['fig']
-    st.plotly_chart(cluster_metric, use_container_width=True)
+    exclude_snps = set(now_nc['snpID'].unique())
+    include_snps = set(prev_nc['snpID'].unique())
+    include = include_snps.difference(exclude_snps)
 
-if percentile: 
-    cluster_25_r = cluster_metrics.loc[cluster_metrics['R_tightness']<1.042037]
-    cluster_75_r = cluster_metrics.loc[cluster_metrics['R_tightness']>3.122486]
+    st.sidebar.markdown('### Choose an individual SNP to display')
+    snp_name = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=include)
 
-    cluster_25_theta = cluster_metrics.loc[cluster_metrics['Theta_tightness']<0.059508]
-    cluster_75_theta = cluster_metrics.loc[cluster_metrics['Theta_tightness']>1.156379]
+    snp1 = full_metrics.loc[full_metrics['snpID'] == snp_name]
 
-    if tightness_measure == 'R':
-        cluster_25 = plot_clusters(cluster_25_r, x_col='Theta', y_col='R', gtype_col='preds_cat', title = '25th Percentile R Tightness')['fig']
-        st.plotly_chart(cluster_25, use_container_width=True)
+    cluster_metric_before = plot_clusters(snp1, x_col='Theta', y_col='R', gtype_col='GT', title = "Before Recluster")['fig']
+    st.plotly_chart(cluster_metric_before, use_container_width = True)
 
-        cluster_25 = plot_clusters(cluster_75_r, x_col='Theta', y_col='R', gtype_col='preds_cat', title = 'Over 75th Percentile R Tightness')['fig']
-        st.plotly_chart(cluster_25, use_container_width=True)
+    cluster_metric_after = plot_clusters(snp1, x_col='Theta', y_col='R', gtype_col='preds_cat', title = "After Recluster")['fig']
+    st.plotly_chart(cluster_metric_after, use_container_width=True)
 
-    elif tightness_measure == 'Theta':
-        cluster_25 = plot_clusters(cluster_25_theta, x_col='Theta', y_col='R', gtype_col='preds_cat', title = '25th Percentile Theta Tightness')['fig']
-        st.plotly_chart(cluster_25, use_container_width=True)
+    cluster_full = plot_clusters(full_metrics, x_col='Theta', y_col='R', gtype_col='preds_cat', title = "After Recluster", single_snp = snp_name, opacity = 0.2)['fig']
+    st.plotly_chart(cluster_full, use_container_width=True)
 
-        cluster_25 = plot_clusters(cluster_75_theta, x_col='Theta', y_col='R', gtype_col='preds_cat', title = 'Over 75th Percentile Theta Tightness')['fig']
-        st.plotly_chart(cluster_25, use_container_width=True)
+elif tightness_measure == 'Theta':
+    theta_less = full_metrics.loc[full_metrics['Theta_tightness']<0.059508]
+
+    prev_nc = theta_less[theta_less["GT"] == "NC"]
+    now_nc = theta_less[theta_less["preds_cat"] == "NC"]
+    # st.dataframe(now_nc)
+
+    exclude_snps = set(now_nc['snpID'].unique())
+    include_snps = set(prev_nc['snpID'].unique())
+    include = include_snps.difference(exclude_snps)
+
+    st.sidebar.markdown('### Choose an individual SNP to display')
+    snp_name = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=include)
+
+    snp1 = full_metrics.loc[full_metrics['snpID'] == snp_name]
+
+    cluster_metric_before = plot_clusters(snp1, x_col='Theta', y_col='R', gtype_col='GT', title = "Before Recluster")['fig']
+    st.plotly_chart(cluster_metric_before, use_container_width = True)
+
+    cluster_metric_after = plot_clusters(snp1, x_col='Theta', y_col='R', gtype_col='preds_cat', title = "After Recluster")['fig']
+    st.plotly_chart(cluster_metric_after, use_container_width=True)
+
+    cluster_full = plot_clusters(full_metrics, x_col='Theta', y_col='R', gtype_col='preds_cat', title = "After Recluster", single_snp = snp_name, opacity = 0.2)['fig']
+    st.plotly_chart(cluster_full, use_container_width=True)
+
+
+elif tightness_measure == 'None':
+    prev_nc = full_metrics[full_metrics["GT"] == "NC"]
+    now_nc = full_metrics[full_metrics["preds_cat"] == "NC"]
+    # st.dataframe(now_nc)
+
+    exclude_snps = set(now_nc['snpID'].unique())
+    include_snps = set(prev_nc['snpID'].unique())
+    include = include_snps.difference(exclude_snps)
+
+    st.sidebar.markdown('### Choose an individual SNP to display')
+    snp_name = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=include)
+
+    snp1 = full_metrics.loc[full_metrics['snpID'] == snp_name]
+
+    cluster_metric_before = plot_clusters(snp1, x_col='Theta', y_col='R', gtype_col='GT', title = "Before Recluster")['fig']
+    st.plotly_chart(cluster_metric_before, use_container_width = True)
+
+    cluster_metric_after = plot_clusters(snp1, x_col='Theta', y_col='R', gtype_col='preds_cat', title = "After Recluster")['fig']
+    st.plotly_chart(cluster_metric_after, use_container_width=True)
+
+    cluster_full = plot_clusters(full_metrics, x_col='Theta', y_col='R', gtype_col='preds_cat', title = "After Recluster", single_snp = snp_name, opacity = 0.2)['fig']
+    st.plotly_chart(cluster_full, use_container_width=True)
+
