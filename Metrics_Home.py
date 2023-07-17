@@ -79,6 +79,9 @@ with metric1:
 with metric2:
     st.metric(f'Number of samples with SNP metrics available:',"{:.0f}".format(num_sample_metrics))
 
+
+if prev_nc and model_name == 'model_060623':  ## TEMPORARY SOLUTION
+    metrics = pd.read_csv(f'data/060623_full_cluster_tightness_wip')
 snp1 = metrics.loc[metrics['snpID'] == snp_name]
 
 before, after = st.columns(2)

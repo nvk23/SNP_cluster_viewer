@@ -40,8 +40,9 @@ def plot_clusters(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot'
             # # fig.add_traces(px.scatter(df.loc[df['snpID'] == single_snp], x=x_col, y=y_col).update_traces(marker_size=100, marker_color="yellow").data)
             # fig.add_traces(px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map = cmap, color_continuous_scale=px.colors.sequential.matter, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap, hover_data=['GT', 'R_tightness', 'Theta_tightness']).data)
             # # fig.update_traces(opacity=opacity)   
-            hold_no_snp = df.drop(df[df['snpID'] == single_snp].index)
-            fig = fig = px.scatter(hold_no_snp, x=x_col, y=y_col, color=gtype_col, color_discrete_map = cmap, color_continuous_scale=px.colors.sequential.matter, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap, hover_data=['GT', 'R_tightness', 'Theta_tightness'])
+
+            # hold_no_snp = df.drop(df[df['snpID'] == single_snp].index)
+            fig = fig = px.scatter(df, x=x_col, y=y_col, color=gtype_col, color_discrete_map = cmap, color_continuous_scale=px.colors.sequential.matter, width=650, height=497, labels=lmap, symbol='phenotype', symbol_map=smap, hover_data=['GT', 'R_tightness', 'Theta_tightness'])
             fig.update_traces(opacity = opacity)
             fig.add_traces(px.scatter(df.loc[df['snpID'] == single_snp], x=x_col, y=y_col).update_traces(marker_color="black").data)
         else:

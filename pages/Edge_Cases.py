@@ -18,7 +18,7 @@ from hold_method import plot_clusters
 st.title('Previous No Calls Evaluation')
 
 full_metrics = pd.read_csv('data/model_060623_full_cluster_tightness')
-tightness_measure = st.sidebar.selectbox(label = 'Show 25th Percentile', options=['None', 'R', 'Theta'])
+tightness_measure = st.sidebar.selectbox(label = 'Tightness Metric', options=['None', 'R', 'Theta'])
 
 if tightness_measure == 'R':
     r_less = full_metrics.loc[full_metrics['R_tightness']<1.042037]
@@ -31,7 +31,7 @@ if tightness_measure == 'R':
     include = include_snps.difference(exclude_snps)
 
     st.sidebar.markdown('### Choose an individual SNP to display')
-    snp_name = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=include)
+    snp_name = st.sidebar.selectbox(label = 'SNP Name Choice', label_visibility = 'collapsed', options=include)
 
     snp1 = full_metrics.loc[full_metrics['snpID'] == snp_name]
 
@@ -56,7 +56,7 @@ elif tightness_measure == 'Theta':
     include = include_snps.difference(exclude_snps)
 
     st.sidebar.markdown('### Choose an individual SNP to display')
-    snp_name = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=include)
+    snp_name = st.sidebar.selectbox(label = 'SNP Name Choice', label_visibility = 'collapsed', options=include)
 
     snp1 = full_metrics.loc[full_metrics['snpID'] == snp_name]
 
@@ -80,7 +80,7 @@ elif tightness_measure == 'None':
     include = include_snps.difference(exclude_snps)
 
     st.sidebar.markdown('### Choose an individual SNP to display')
-    snp_name = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=include)
+    snp_name = st.sidebar.selectbox(label = 'SNP Name Choice', label_visibility = 'collapsed', options=include)
 
     snp1 = full_metrics.loc[full_metrics['snpID'] == snp_name]
 
