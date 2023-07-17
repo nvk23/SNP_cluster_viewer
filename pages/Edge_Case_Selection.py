@@ -58,7 +58,6 @@ else:
         snp_name = random.choice(list(include))
         snp1 = full_metrics.loc[full_metrics['snpID'] == snp_name]
     elif no_regenerate:
-        st.session_state['snp_choices'].append(snp_name)
         snp_name = random.choice(list(include))
         snp1 = full_metrics.loc[full_metrics['snpID'] == snp_name] 
 
