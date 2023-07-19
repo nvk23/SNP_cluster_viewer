@@ -50,6 +50,8 @@ def display_plots(snp_name, full_metrics, full_plot = True, before_after = True,
 
 if 'snp_choices' not in st.session_state:
     st.session_state['snp_choices'] = []
+if 'snp_seen' not in st.session_state:
+    st.session_state['snp_seen'] = []
 if 'snp_name' not in st.session_state:
     st.session_state['snp_name'] = ''
 
@@ -60,7 +62,7 @@ display_unmatched = st.sidebar.checkbox('Display discrepancy SNPs')
 
 if not display_unmatched:
     rand_generate = st.sidebar.checkbox('Randomly generate SNPs')
-    tightness_measure = st.sidebar.selectbox(label = 'Choose the Outlier Metric', options=['R', 'Theta'])
+    tightness_measure = st.sidebar.selectbox(label = 'Choose the Outlier Metric:', options=['R', 'Theta'])
 
     if tightness_measure == 'R':
         measure = 'R_outlier'
@@ -82,10 +84,6 @@ if not display_unmatched:
         display_plots(snp_name, full_metrics)
 
     else:
-        st.session_state['snp_name'] = random.choice(list(include))
-        snp1 = full_metrics.loc[full_metrics['snpID'] == st.session_state['snp_name']]
-
-        st.markdown(f'#### SNP: {st.session_state["snp_name"]}')
         btn1, btn2, btn3 = st.columns([1, 0.5, 0.5])
         btn1.markdown('#### Should this reclustering be regenerated?')
         regenerate = btn2.button('Yes')
@@ -93,12 +91,29 @@ if not display_unmatched:
 
         if regenerate:
             st.session_state['snp_choices'].append(st.session_state['snp_name'])
-            snp_name = random.choice(list(include))
+            st.session_state['snp_seen'].append(st.session_state['snp_name'])
+            st.session_state['snp_name'] = random.choice(list(include))
         elif no_regenerate:
-            snp_name = random.choice(list(include))
+            st.session_state['snp_seen'].append(st.session_state['snp_name'])
+            st.session_state['snp_name'] = random.choice(list(include))
+        else:
+            st.session_state['snp_name'] = random.choice(list(include))
 
+        try:
+            if st.session_state['snp_name'] in st.session_state['snp_seen']:
+                st.session_state['snp_name'] = random.choice(list(include))
+        except:
+            st.error("No more SNPs to run through!")
+
+        st.markdown(f'#### SNP: {st.session_state["snp_name"]}')
         st.sidebar.markdown('Reported SNPs:')
-        st.sidebar.write(st.session_state['snp_choices'])  # MAKE DOWNLOAD BUTTON FOR TXT FILE OF THESE SNPS
+        
+        # MAKE DOWNLOAD BUTTON FOR TXT FILE OF THESE SNPS
+        st.sidebar.data_editor(st.session_state['snp_choices'],
+                        column_config={"value": st.column_config.TextColumn("Outlier SNP")},
+                        hide_index=True,
+                        use_container_width=True
+                    )
         display_plots(st.session_state['snp_name'], full_metrics)
 
 elif display_unmatched:

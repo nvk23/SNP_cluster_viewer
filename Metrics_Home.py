@@ -30,7 +30,7 @@ st.set_page_config(
 st.title('Cluster Buster Evaluations')
 
 st.sidebar.markdown('### Choose a Model')
-models = ['model_051723','model_052523', 'model_060623']
+models = ['model_060623', 'model_052523', 'model_051723']
 model_name = st.sidebar.selectbox(label = 'Minor Allele Frequency Category Selection', label_visibility = 'collapsed', options=models)
 
 st.sidebar.markdown('### Choose a MAF Category')
@@ -45,7 +45,7 @@ maf_cat = st.sidebar.selectbox(label = 'Minor Allele Frequency Category Selectio
 
 checkbox1, checkbox2 = st.columns(2)
 
-prev_nc = checkbox1.checkbox('Show previously NC only') # make warnings about previoius models w/ NC only at MAF = 0
+prev_nc = checkbox1.checkbox('Show previously NC only', value = True) # make warnings about previoius models w/ NC only at MAF = 0
 
 if not prev_nc:
     metrics = pd.read_csv(f'data/{model_name}_maf{maf_cat}')
