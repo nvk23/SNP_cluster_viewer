@@ -117,7 +117,7 @@ if not display_unmatched:
         display_plots(st.session_state['snp_name'], full_metrics)
 
 elif display_unmatched:
-    # Temporarily hard-coded for presentation purposes
+    # Temporarily hard-coded for quicker presentation purposes
     discrepancies = ['Variant49196', 'rs188740886', 'chr4:89854340:T:A_ilmnfwd_ilmnF2BT', '6:161575165-TG', 'rs1475032', 'rs6913878']
     # discrepancies = find_unmatched(before_matched)
 
