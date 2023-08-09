@@ -30,6 +30,7 @@ def find_unmatched(df_all):
 
     return unmatched.values
 
+
 def display_plots(snp_name, full_metrics, full_plot = True, before_after = True, title = None): 
     snp1 = full_metrics.loc[full_metrics['snpID'] == snp_name]
 
@@ -55,8 +56,16 @@ if 'snp_seen' not in st.session_state:
 if 'snp_name' not in st.session_state:
     st.session_state['snp_name'] = ''
 
-full_metrics = pd.read_csv('data/060623_full_cluster_tightness_wip')
-before_matched = pd.read_csv('data/060623_complete')
+st.sidebar.markdown('### Choose a Model')
+models = ['model_060623', 'model_080823']
+model_name = st.sidebar.selectbox(label = 'Model Choice', label_visibility = 'collapsed', options=models)
+
+if model_name == 'model_060623':
+    full_metrics = pd.read_csv('data/060623_full_cluster_tightness_wip')
+    before_matched = pd.read_csv('data/060623_complete')
+elif model_name == 'model_080823':
+    full_metrics = pd.read_csv('data/model_080823_allgentrainscores_full_cluster_tightness')
+
 
 display_unmatched = st.sidebar.checkbox('Display discrepancy SNPs')
 
@@ -117,12 +126,23 @@ if not display_unmatched:
         display_plots(st.session_state['snp_name'], full_metrics)
 
 elif display_unmatched:
+    ### if import data adjusted to match
     # Temporarily hard-coded for quicker presentation purposes
-    discrepancies = ['Variant49196', 'rs188740886', 'chr4:89854340:T:A_ilmnfwd_ilmnF2BT', '6:161575165-TG', 'rs1475032', 'rs6913878']
-    # discrepancies = find_unmatched(before_matched)
+    if 'matching_check' not in full_metrics.columns:
+        discrepancies = ['Variant49196', 'rs188740886', 'chr4:89854340:T:A_ilmnfwd_ilmnF2BT', '6:161575165-TG', 'rs1475032', 'rs6913878']
+        # discrepancies = find_unmatched(before_matched)
 
-    snp_name = st.sidebar.selectbox(label = 'SNP Name Choice', label_visibility = 'collapsed', options=discrepancies)
+        snp_name = st.sidebar.selectbox(label = 'SNP Name Choice', label_visibility = 'collapsed', options=discrepancies)
 
-    display_plots(snp_name, before_matched, full_plot = False, before_after = False, title = 'Our Prediction')
-    display_plots(snp_name, full_metrics, before_after = False, title = "Illumina's Prediction")
+        display_plots(snp_name, before_matched, full_plot = False, before_after = False, title = 'Our Prediction')
+        display_plots(snp_name, full_metrics, before_after = False, title = "Illumina's Prediction")
+
+    ### if import new complete data with matching_check col
+    else: 
+        discrepancies = full_metrics['snpID'].loc[full_metrics['matching_check'] == False]
+
+        snp_name = st.sidebar.selectbox(label = 'SNP Name Choice', label_visibility = 'collapsed', options=np.unique(discrepancies))
+
+        display_plots(snp_name, full_metrics)
+
 

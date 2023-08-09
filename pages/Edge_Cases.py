@@ -17,7 +17,15 @@ from hold_method import plot_clusters
 
 st.title('Previous No Calls Evaluation')
 
-full_metrics = pd.read_csv('data/model_060623_full_cluster_tightness')
+st.sidebar.markdown('### Choose a Model')
+models = ['model_060623', 'model_080823']
+model_name = st.sidebar.selectbox(label = 'Model Choice', label_visibility = 'collapsed', options=models)
+
+if model_name == 'model_060623':
+    full_metrics = pd.read_csv('data/model_060623_full_cluster_tightness')
+elif model_name == 'model_080823':
+    full_metrics = pd.read_csv('data/model_080823_allgentrainscores_full_cluster_tightness')
+
 tightness_measure = st.sidebar.selectbox(label = 'Tightness Metric', options=['None', 'R', 'Theta'])
 
 if tightness_measure == 'R':
