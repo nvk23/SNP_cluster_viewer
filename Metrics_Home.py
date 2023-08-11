@@ -62,6 +62,7 @@ prev_nc = checkbox1.checkbox('Show previously NC only', value = True) # make war
 
 if model_name == 'model_080823':
     full_metrics = pd.read_csv('data/model_080823_allgentrainscores_full_cluster_tightness')
+
     small_gentrain = st.sidebar.checkbox('Show Gen Train Score < 0.75')
     if small_gentrain:
         full_metrics = full_metrics[full_metrics["GenTrain_Score"] < 0.75]
