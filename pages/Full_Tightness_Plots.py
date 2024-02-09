@@ -15,16 +15,25 @@ from io import StringIO, BytesIO
 
 from hold_method import plot_clusters
 
+st.sidebar.markdown('### Choose a Model')
+models = ['model_060623', 'model_080823_allgentrainscores', 'model_081623_small', 'model_081623']
+model_name = st.sidebar.selectbox(label = 'Model Choice', label_visibility = 'collapsed', options=models)
 
-cluster_metrics = pd.read_csv(f'data/model_060623_full_cluster_tightness')
+if model_name == 'model_060623':
+    cluster_metrics = pd.read_csv('data/060623_full_cluster_tightness_wip')
+else:
+    cluster_metrics = pd.read_csv(f'data/{model_name}_full_cluster_tightness.csv')
+
+
+# cluster_metrics = pd.read_csv(f'data/model_060623_full_cluster_tightness')
 tightness_measure = st.sidebar.selectbox(label = 'Cluster Tightnes Metric', options=['R', 'Theta'])
 plot_choice = st.sidebar.selectbox(label = 'Display Stats Option', options=['percentile', 'metric slider'])
 gradient = st.sidebar.checkbox('Show gradient plots')
 
-min_r = 0.174188
-max_r = 62.392498
-min_theta = 0.007535
-max_theta = 48.659265
+min_r = min(cluster_metrics['R'])
+max_r = max(cluster_metrics['R'])
+min_theta = min(cluster_metrics['Theta'])
+max_theta = max(cluster_metrics['Theta'])
 
 if plot_choice == 'metric slider':
     if tightness_measure == 'R':

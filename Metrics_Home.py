@@ -30,12 +30,13 @@ st.set_page_config(
 st.title('Cluster Buster Evaluations')
 
 st.sidebar.markdown('### Choose a Model')
-models = ['model_060623', 'model_052523', 'model_051723', 'model_080823']
+models = ['model_060623', 'model_052523', 'model_051723', 'model_080823_allgentrainscores', 'model_081623_small', 'model_081623']
 model_name = st.sidebar.selectbox(label = 'Minor Allele Frequency Category Selection', label_visibility = 'collapsed', options=models)
 
 st.sidebar.markdown('### Choose a MAF Category')
 maf_descriptions = st.sidebar.expander("MAF Categories", expanded=False)
-if model_name == 'model_080823':
+updated_models = ['model_080823', 'model_081623_small', 'model_081623']
+if model_name == 'model_080823_allgentrainscores':
     with maf_descriptions:
         st.markdown("MAF of 0 is 0 ")
         st.markdown("MAF of 1 is between 0 and 0.000199681 inclusive")
@@ -45,6 +46,17 @@ if model_name == 'model_080823':
         st.markdown("MAF of 5 is greater than 0.5")
 
     options = list(range(6))
+# elif model_name == 'model_081623':
+#     with maf_descriptions:
+#         st.markdown("MAF of 0 is 0 ")
+#         st.markdown("MAF of 1 is between 0 and 0.000199681 inclusive")
+#         st.markdown("MAF of 2 is between 0.000199681 and 0.000399361 inclusive")
+#         st.markdown("MAF of 3 is between 0.000399361 and 0.00219649 inclusive")
+#         st.markdown("MAF of 4 is between 0.00219649 and 0.5 inclusive")
+#         st.markdown("MAF of 5 is greater than 0.5")
+
+#     options = list(range(7))
+
 else:
     with maf_descriptions:
         st.markdown("MAF of 0 is 0 ")
@@ -60,8 +72,8 @@ checkbox1, checkbox2 = st.columns(2)
 
 prev_nc = checkbox1.checkbox('Show previously NC only', value = True) # make warnings about previoius models w/ NC only at MAF = 0
 
-if model_name == 'model_080823':
-    full_metrics = pd.read_csv('data/model_080823_allgentrainscores_full_cluster_tightness')
+if model_name in updated_models:
+    full_metrics = pd.read_csv(f'data/{model_name}_full_cluster_tightness.csv')
 
     small_gentrain = st.sidebar.checkbox('Show Gen Train Score < 0.75')
     if small_gentrain:
@@ -77,7 +89,8 @@ if model_name == 'model_080823':
     st.sidebar.markdown('### Choose an individual SNP to display')
     snp_name = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=metrics['snpID'].unique())
     full_MAF_plot = st.sidebar.checkbox('Display full MAF plot')
-    seaborn_plot = st.sidebar.checkbox('Display Seaborn full MAF plot')
+    # seaborn_plot = st.sidebar.checkbox('Display Seaborn full MAF plot')
+    seaborn_plot = None
     full_plots = st.sidebar.checkbox('Display full plots')
 
 
@@ -161,7 +174,8 @@ else:
     st.sidebar.markdown('### Choose an individual SNP to display')
     snp_name = st.sidebar.selectbox(label = 'Cohort Selection', label_visibility = 'collapsed', options=metrics['snpID'].unique())
     full_MAF_plot = st.sidebar.checkbox('Display full MAF plot')
-    seaborn_plot = st.sidebar.checkbox('Display Seaborn full MAF plot')
+    # seaborn_plot = st.sidebar.checkbox('Display Seaborn full MAF plot')
+    seaborn_plot = None
     full_plots = st.sidebar.checkbox('Display full plots')
 
 

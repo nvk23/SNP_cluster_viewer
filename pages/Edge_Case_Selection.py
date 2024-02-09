@@ -57,14 +57,14 @@ if 'snp_name' not in st.session_state:
     st.session_state['snp_name'] = ''
 
 st.sidebar.markdown('### Choose a Model')
-models = ['model_060623', 'model_080823']
+models = ['model_060623', 'model_080823_allgentrainscores', 'model_081623_small', 'model_081623']
 model_name = st.sidebar.selectbox(label = 'Model Choice', label_visibility = 'collapsed', options=models)
 
 if model_name == 'model_060623':
     full_metrics = pd.read_csv('data/060623_full_cluster_tightness_wip')
     before_matched = pd.read_csv('data/060623_complete')
-elif model_name == 'model_080823':
-    full_metrics = pd.read_csv('data/model_080823_allgentrainscores_full_cluster_tightness')
+else:
+    full_metrics = pd.read_csv(f'data/{model_name}_full_cluster_tightness.csv')
 
 
 display_unmatched = st.sidebar.checkbox('Display discrepancy SNPs')
