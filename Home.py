@@ -49,11 +49,11 @@ nba_raw = pd.read_csv(f'data/nba_raw_snps/{snp_name}_main.csv')
 
 nba,short_read = st.columns(2)
 nba.markdown('### Array Data')
-nba.selectbox('NBA Genotype Selection:', options=['Raw Genotypes', 'Imputed Genotypes'], label_visibility='collapsed')
+nba_gt = nba.selectbox('NBA Genotype Selection:', options=['Raw Genotypes', 'Imputed Genotypes'], label_visibility='collapsed')
 # short_read.markdown('### Short-Read Data')
 
 nba.metric(f'Number of available samples:', "{:.0f}".format(len(np.unique(nba_raw.IID))))
 # nba.metric(f'Number of available samples:', "{:.0f}".format(len(np.unique(short_read.IID))))
 
-nba_plot = plot_clusters_seaborn(nba_raw, x_col='Theta', y_col='R', gtype_col='GT', title = snp_name, opacity = 1)['fig']
+nba_plot = plot_clusters_seaborn(nba_raw, x_col='Theta', y_col='R', gtype_col='GT', title = f'{snp_name} NBA {nba_gt}', opacity = 1)['fig']
 nba.pyplot(nba_plot)
