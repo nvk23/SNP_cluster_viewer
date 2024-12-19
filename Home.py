@@ -1,15 +1,6 @@
-import os
-import sys
-import subprocess
-import datetime
 import numpy as np
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.io as pio
-import seaborn as sns
-from PIL import Image
 from io import StringIO, BytesIO
 from google.cloud import storage
 
@@ -80,7 +71,7 @@ gtype_col = 'GT'
 
 wgs_snp_name = wgs_snps[wgs_snps.snpID == snp_name].keep_ID.iloc[0]
 
-app_stop = False
+app_stop_wgs = False
 try:
     # VCF-based path
     # wgs_path = f'nicole/x_chrom/wgs_extracted_snps/{wgs_snp_name}_main.csv'
@@ -97,8 +88,9 @@ try:
     wgs = wgs.merge(nba_raw[['snpID', 'GP2ID', 'R', 'Theta']], left_on = ['snpID', 'IID'], right_on = ['snpID', 'GP2ID'], how = 'inner')
 except:
     short_read.warning('No WGS data for this SNP')
-    app_stop = True
+    app_stop_wgs = True
 
+app_stop_imputed = False
 if array_options[nba_gt] == 'imputed':
     imputed_snp_name = imputed_snps[imputed_snps.snpID == snp_name].keep_ID.iloc[0]
 
@@ -117,31 +109,32 @@ if array_options[nba_gt] == 'imputed':
         nba_raw = nba_imputed.merge(nba_raw[['snpID', 'nba_GP2sampleID_r7', 'R', 'Theta']], left_on = ['snpID', 'IID'], right_on = ['snpID', 'nba_GP2sampleID_r7'], how = 'inner')
     except:
         nba.warning('No imputed data for this SNP')
-        st.stop()
+        app_stop_imputed = True
 
-nba.metric(f'Number of available samples:', "{:.0f}".format(len(np.unique(nba_raw.IID))))
-nba_plot = plot_clusters_seaborn(nba_raw, x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'{snp_name} NBA {nba_gt}', opacity = 1)['fig']
-nba.pyplot(nba_plot)
+if not app_stop_imputed:
+    nba.metric(f'Number of available samples:', "{:.0f}".format(len(np.unique(nba_raw.IID))))
+    nba_plot = plot_clusters_seaborn(nba_raw, x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'{snp_name} NBA {nba_gt}', opacity = 1)['fig']
+    nba.pyplot(nba_plot)
 
-# add "compare sex" button at the bottom of plots on both sides
-nba_compare = nba.checkbox('__Compare Biological Sex__', key = 'nba_gender')
+    # add "compare sex" button at the bottom of plots on both sides
+    nba_compare = nba.checkbox('__Compare Biological Sex__', key = 'nba_gender')
 
-if nba_compare:
-    sex1, sex2 = st.columns(2)
+    if nba_compare:
+        sex1, sex2 = st.columns(2)
 
-    if array_options[nba_gt] == 'imputed':
-        male_IID = master[master.biological_sex_for_qc == 'Male'].nba_GP2sampleID_r7.values
-    else:
-        male_IID = master[master.biological_sex_for_qc == 'Male'].IID.values
+        if array_options[nba_gt] == 'imputed':
+            male_IID = master[master.biological_sex_for_qc == 'Male'].nba_GP2sampleID_r7.values
+        else:
+            male_IID = master[master.biological_sex_for_qc == 'Male'].IID.values
 
-    nba_plot_male = plot_clusters_seaborn(nba_raw[nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Male {snp_name} NBA {nba_gt}', opacity = 1)['fig']
-    sex1.pyplot(nba_plot_male)
+        nba_plot_male = plot_clusters_seaborn(nba_raw[nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Male {snp_name} NBA {nba_gt}', opacity = 1)['fig']
+        sex1.pyplot(nba_plot_male)
 
-    nba_plot_female = plot_clusters_seaborn(nba_raw[~nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Female {snp_name} NBA {nba_gt}', opacity = 1)['fig']
-    sex2.pyplot(nba_plot_female)
+        nba_plot_female = plot_clusters_seaborn(nba_raw[~nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Female {snp_name} NBA {nba_gt}', opacity = 1)['fig']
+        sex2.pyplot(nba_plot_female)
 
 # Will still plot NBA samples if WGS not available
-if app_stop:
+if app_stop_wgs:
     st.stop()
 
 short_read.metric(f'Number of available samples:', "{:.0f}".format(len(np.unique(wgs.IID))))

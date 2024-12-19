@@ -1,17 +1,5 @@
-import os
-import sys
-import subprocess
-import numpy as np
-import pandas as pd
-import streamlit as st
 import matplotlib.pyplot as plt
-import plotly.express as px
-import plotly.io as pio
-import plotly.graph_objects as go
 import seaborn as sns
-from PIL import Image
-import datetime
-from io import StringIO
 
 
 def plot_clusters_seaborn(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot', opacity=1, highlight_samples=[]):
