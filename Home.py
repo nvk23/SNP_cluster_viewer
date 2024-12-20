@@ -38,9 +38,9 @@ gp2_data_bucket = get_gcloud_bucket('gp2_working_eu')
 
 st.title('X Chromosome: Array vs. Short-read SNP Comparisons')
 
-par_snps = pd.read_csv(f'data/sample_info/sampled_100_PAR.csv')
-non_par_snps = pd.read_csv(f'data/sample_info/sampled_100_non_PAR.csv')
-master = pd.read_csv(f'data/sample_info/subset_rel8_IID.csv')
+par_snps = blob_as_csv(gp2_data_bucket, 'nicole/x_chrom/sampled_100_PAR.csv', sep = ',')
+non_par_snps = blob_as_csv(gp2_data_bucket, 'nicole/x_chrom/sampled_100_non_PAR.csv', sep = ',')
+master = blob_as_csv(gp2_data_bucket, 'nicole/x_chrom/subset_rel8_IID.csv', sep = ',')
 imputed_snps = blob_as_csv(gp2_data_bucket, 'nicole/x_chrom/imputed_variant_key.csv', sep = ',')
 wgs_snps = blob_as_csv(gp2_data_bucket, 'nicole/x_chrom/wgs_variant_key.csv', sep = ',')
 
@@ -65,7 +65,8 @@ nba_gt = nba.selectbox('NBA Genotype Selection:', options=['Raw Genotypes', 'Imp
 short_read.markdown('### Short-Read Data')
 wgs_gt = short_read.selectbox('Short-read Genotype Selection', options=['Deep Variant Joint Call'], label_visibility='collapsed')
 
-nba_raw = pd.read_csv(f'data/nba_{array_options["Raw Genotypes"]}_snps/{snp_name}_main.csv')
+nba_raw_path = f'nicole/x_chrom/nba_{array_options["Raw Genotypes"]}_snps/{snp_name}_main.csv'
+nba_raw = blob_as_csv(gp2_data_bucket, nba_raw_path, sep = ',')
 nba_raw = nba_raw.merge(master[['IID', 'GP2ID', 'nba_GP2sampleID_r7']], on = 'IID')
 gtype_col = 'GT'
 
