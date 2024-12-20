@@ -1,6 +1,67 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
 
+
+def plot_clusters_plotly(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot', opacity=1, highlight_samples=[]):
+    # Define a color map
+    cmap = {
+        'AA': '#87CEEB',
+        'AB': '#FFC0CB',
+        'BA': '#FFC0CB',
+        'BB': '#008000',
+        'NC': '#e41a1c'
+    }
+
+    df.dropna(subset=[x_col], inplace=True)
+
+    # Define axis limits
+    xlim = [0, 1.1]
+    ymin, ymax = df[y_col].min(), df[y_col].max()
+    ylim = [ymin - 0.1, ymax + 0.1]
+
+    # Convert the genotype column to colors based on the cmap
+    df['color'] = df[gtype_col].map(cmap)
+
+    # Base scatter plot
+    fig = px.scatter(
+        df[~df['IID'].isin(highlight_samples)],
+        x=x_col,
+        y=y_col,
+        color=gtype_col,
+        color_discrete_map=cmap,
+        opacity=opacity,
+        labels={x_col: 'Theta', y_col: 'R', gtype_col: 'Genotype'},
+        title=title
+    )
+
+    # Add highlighted samples if any
+    if len(highlight_samples) > 0:
+        highlight_samples_data = df[df['IID'].isin(highlight_samples)]
+        fig.add_trace(
+            go.Scatter(
+                x=highlight_samples_data[x_col],
+                y=highlight_samples_data[y_col],
+                mode='markers',
+                marker=dict(
+                    size=12,
+                    color='black',
+                    symbol='x'
+                ),
+                name='Highlighted Samples'
+            )
+        )
+
+    # Update layout
+    fig.update_layout(
+        xaxis=dict(range=xlim, title='Theta'),
+        yaxis=dict(range=ylim, title='R'),
+        legend_title_text='Genotype',
+        template='plotly_white'
+    )
+
+    return fig
 
 def plot_clusters_seaborn(df, x_col='theta', y_col='r', gtype_col='gt', title='snp plot', opacity=1, highlight_samples=[]):
     # d3 = sns.color_palette("muted")

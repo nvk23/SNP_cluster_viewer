@@ -4,7 +4,7 @@ import streamlit as st
 from io import StringIO, BytesIO
 from google.cloud import storage
 
-from hold_method import plot_clusters_seaborn
+from hold_method import plot_clusters_seaborn, plot_clusters_plotly
 
 
 st.set_page_config(
@@ -114,8 +114,10 @@ if array_options[nba_gt] == 'imputed':
 
 if not app_stop_imputed:
     nba.metric(f'Number of available samples:', "{:.0f}".format(len(np.unique(nba_raw.IID))))
-    nba_plot = plot_clusters_seaborn(nba_raw, x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'{snp_name} NBA {nba_gt}', opacity = 1)['fig']
-    nba.pyplot(nba_plot)
+    # nba_plot = plot_clusters_seaborn(nba_raw, x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'{snp_name} NBA {nba_gt}', opacity = 1)['fig']
+    # nba.pyplot(nba_plot)
+    nba_plot = plot_clusters_plotly(nba_raw, x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'{snp_name} NBA {nba_gt}', opacity = 1)
+    nba.plotly_chart(nba_plot)
 
     # add "compare sex" button at the bottom of plots on both sides
     nba_compare = nba.checkbox('__Compare Biological Sex__', key = 'nba_gender')
@@ -128,19 +130,25 @@ if not app_stop_imputed:
         else:
             male_IID = master[master.biological_sex_for_qc == 'Male'].IID.values
 
-        nba_plot_male = plot_clusters_seaborn(nba_raw[nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Male {snp_name} NBA {nba_gt}', opacity = 1)['fig']
-        sex1.pyplot(nba_plot_male)
+        # nba_plot_male = plot_clusters_seaborn(nba_raw[nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Male {snp_name} NBA {nba_gt}', opacity = 1)['fig']
+        # sex1.pyplot(nba_plot_male)
+        nba_plot_male = plot_clusters_plotly(nba_raw[nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Male {snp_name} NBA {nba_gt}', opacity = 1)
+        sex1.plotly_chart(nba_plot_male)
 
-        nba_plot_female = plot_clusters_seaborn(nba_raw[~nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Female {snp_name} NBA {nba_gt}', opacity = 1)['fig']
-        sex2.pyplot(nba_plot_female)
+        # nba_plot_female = plot_clusters_seaborn(nba_raw[~nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Female {snp_name} NBA {nba_gt}', opacity = 1)['fig']
+        # sex2.pyplot(nba_plot_female)
+        nba_plot_female = plot_clusters_plotly(nba_raw[~nba_raw.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=gtype_col, title = f'Female {snp_name} NBA {nba_gt}', opacity = 1)
+        sex2.plotly_chart(nba_plot_female)
 
 # Will still plot NBA samples if WGS not available
 if app_stop_wgs:
     st.stop()
 
 short_read.metric(f'Number of available samples:', "{:.0f}".format(len(np.unique(wgs.IID))))
-wgs_plot = plot_clusters_seaborn(wgs, x_col='Theta', y_col='R', gtype_col=wgs_gtype, title = f'{snp_name} WGS {wgs_gt}', opacity = 1)['fig']
-short_read.pyplot(wgs_plot)
+# wgs_plot = plot_clusters_seaborn(wgs, x_col='Theta', y_col='R', gtype_col=wgs_gtype, title = f'{snp_name} WGS {wgs_gt}', opacity = 1)['fig']
+# short_read.pyplot(wgs_plot)
+wgs_plot = plot_clusters_plotly(wgs, x_col='Theta', y_col='R', gtype_col=wgs_gtype, title = f'{snp_name} WGS {wgs_gt}', opacity = 1)
+short_read.plotly_chart(wgs_plot)
 short_compare = short_read.checkbox('__Compare Biological Sex__', key = 'wgs_gender')
 
 if short_compare:
@@ -148,8 +156,12 @@ if short_compare:
 
     male_IID = master[master.biological_sex_for_qc == 'Male'].GP2ID.values
 
-    wgs_plot_male = plot_clusters_seaborn(wgs[wgs.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=wgs_gtype, title = f'Male {snp_name} WGS {wgs_gt}', opacity = 1)['fig']
-    sex1.pyplot(wgs_plot_male)
+    # wgs_plot_male = plot_clusters_seaborn(wgs[wgs.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=wgs_gtype, title = f'Male {snp_name} WGS {wgs_gt}', opacity = 1)['fig']
+    # sex1.pyplot(wgs_plot_male)
+    wgs_plot_male = plot_clusters_plotly(wgs[wgs.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=wgs_gtype, title = f'Male {snp_name} WGS {wgs_gt}', opacity = 1)
+    sex1.plotly_chart(wgs_plot_male)
 
-    wgs_plot_female = plot_clusters_seaborn(wgs[~wgs.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=wgs_gtype, title = f'Female {snp_name} WGS {wgs_gt}', opacity = 1)['fig']
-    sex2.pyplot(wgs_plot_female)
+    # wgs_plot_female = plot_clusters_seaborn(wgs[~wgs.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=wgs_gtype, title = f'Female {snp_name} WGS {wgs_gt}', opacity = 1)['fig']
+    # sex2.pyplot(wgs_plot_female)
+    wgs_plot_female = plot_clusters_plotly(wgs[~wgs.IID.isin(male_IID)], x_col='Theta', y_col='R', gtype_col=wgs_gtype, title = f'Female {snp_name} WGS {wgs_gt}', opacity = 1)
+    sex2.plotly_chart(wgs_plot_female)
